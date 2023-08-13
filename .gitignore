@@ -1,0 +1,14 @@
+node_modules
+
+.cache
+.env
+.vercel
+.output
+
+/build/
+/public/build
+/api/
+
+# test files
+/app/routes/testUploadGoogleDriveImg.tsx
+/app/routes/getGoogleDriveToken.tsx
