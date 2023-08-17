@@ -1,87 +1,115 @@
 import { useNavigate, useSearchParams } from "@remix-run/react";
 import { Form } from "@remix-run/react";
-import { useState } from "react";
-import { SelectBox } from "./select-box";
-import { sortOptions } from "~/utils/constants";
-import { UserCircle } from "./user-circle";
-import type { Profile } from "@prisma/client";
 
-interface props {
-  profile: Profile;
-}
+// components
+import {
+  Text,
+  Flex,
+  TextField,
+  Button,
+  IconButton,
+  DropdownMenu,
+} from "@radix-ui/themes";
+import {
+  MagnifyingGlassIcon,
+  GearIcon,
+  PersonIcon,
+  ExitIcon,
+} from "@radix-ui/react-icons";
 
-export function SearchBar({ profile }: props) {
+export function SearchBar() {
   const navigate = useNavigate();
-  const [sortBy, setSortBy] = useState(sortOptions[0].value);
-
-  let [searchParams, setSearchParams] = useSearchParams();
-  const handleSelectSort = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    event.preventDefault();
-    setSortBy(event.target.value);
-  };
-  const clearFilters = (event: React.FormEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setSearchParams({});
-    setSortBy(sortOptions[0].value);
-    navigate("/home");
-  };
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  let [searchParams] = useSearchParams();
+  const filterKudos = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    setSearchParams(data);
-  }
+    const queryString = new URLSearchParams(window.location.search);
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === "string") {
+        queryString.set(key, value);
+      }
+    }
+    navigate(`/home?${queryString.toString()}`);
+  };
+
+  const clearFilter = (event: React.FormEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    const searchBarForm = document.getElementById(
+      "search-bar-form",
+    ) as HTMLFormElement;
+    searchBarForm.reset();
+    const formData = new FormData(searchBarForm);
+    const queryString = new URLSearchParams(window.location.search);
+    for (const key of formData.keys()) {
+      if (queryString.has(key)) {
+        queryString.delete(key);
+      }
+    }
+    navigate(`/home?${queryString.toString()}`);
+  };
+
+  const navigateToProfile = () => {
+    const queryString = new URLSearchParams(window.location.search);
+    navigate(`/home/profile?${queryString.toString()}`);
+  };
+
+  const logout = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    fetch("/logout", { method: "POST" }).then(() => {
+      navigate("/login");
+    });
+  };
+
+  const renderSettingButton = () => {
+    return (
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger className="cursor-pointer">
+          <IconButton radius="full" variant="soft" color="gray">
+            <GearIcon width="18" height="18" />
+          </IconButton>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content>
+          <DropdownMenu.Item onClick={navigateToProfile}>
+            <Flex align="center" justify="start">
+              <PersonIcon className="mr-2" />
+              <Text as="span">Profile</Text>
+            </Flex>
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item onClick={logout}>
+            <Flex align="center" justify="start">
+              <ExitIcon className="mr-2" />
+              <Text as="span">Log out</Text>
+            </Flex>
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+    );
+  };
 
   return (
-    <Form
-      onSubmit={handleSubmit}
-      className="w-full px-6 flex items-center gap-x-5 border-b-4 border-b-blue-900 border-opacity-30 h-20"
+    <Flex
+      className="h-20 gap-x-5 border-b-2 border-b-gray-300 px-2"
+      justify="between"
+      align="center"
     >
-      <div className="flex items-center w-2/5">
-        <input
-          type="text"
-          name="filter"
-          className="w-full rounded-xl px-3 py-2"
-          placeholder="Search a message or name"
-        />
-        <svg
-          className="w-4 h-4 fill-current text-gray-400 -ml-8"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-        >
-          <path d="M0 0h24v24H0V0z" fill="none" />
-          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-        </svg>
-      </div>
-      <SelectBox
-        className="w-full rounded-xl px-3 py-2 text-gray-400"
-        containerClassName="w-40"
-        name="sort"
-        options={sortOptions}
-        onChange={handleSelectSort}
-        value={sortBy}
-      />
-      <button
-        type="submit"
-        className="rounded-xl bg-yellow-300 font-semibold text-blue-600 px-3 py-2 transition duration-300 ease-in-out hover:bg-yellow-400 hover:-translate-y-1"
-      >
-        Search
-      </button>
-      {searchParams.get("filter") && (
-        <button
-          onClick={clearFilters}
-          className="rounded-xl bg-red-300 font-semibold text-blue-600 px-3 py-2 transition duration-300 ease-in-out hover:bg-yellow-400 hover:-translate-y-1"
-        >
-          Clear Filters
-        </button>
-      )}
-      <div className="flex-1" />
-      <UserCircle
-        profile={profile}
-        className="h-14 w-14 transition duration-300 ease-in-out hover:scale-110 hover:border-2 hover:border-yellow-300"
-        onClick={() => navigate("profile")}
-      />
-    </Form>
+      <Form onSubmit={filterKudos} id="search-bar-form">
+        <Flex gap="2">
+          <TextField.Root>
+            <TextField.Slot>
+              <MagnifyingGlassIcon height="16" width="16" />
+            </TextField.Slot>
+            <TextField.Input name="filter" placeholder="Search for kudos..." />
+          </TextField.Root>
+          <Button color="blue">Search</Button>
+          {searchParams.get("filter") && (
+            <Button color="gray" variant="soft" onClick={clearFilter}>
+              Clear Filters
+            </Button>
+          )}
+        </Flex>
+      </Form>
+      {renderSettingButton()}
+    </Flex>
   );
 }

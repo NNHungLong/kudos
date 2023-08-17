@@ -1,6 +1,7 @@
 import { UserCircle } from "./user-circle";
 import { Profile, Kudo as IKudo } from "@prisma/client";
 import { colorMap, backgroundColorMap, emojiMap } from "~/utils/constants";
+import { Text } from "@radix-ui/themes";
 
 interface props {
   profile: Profile;
@@ -18,20 +19,20 @@ export function Kudo({ profile, kudo }: props) {
         <UserCircle profile={profile} className="h-16 w-16" />
       </div>
       <div className="flex flex-col grow">
-        <p
+        <Text
           className={`${
             colorMap[kudo.style?.textColor || "WHITE"]
           } font-bold text-lg whitespace-pre-wrap break-all`}
         >
           {profile.firstName} {profile.lastName}
-        </p>
-        <p
+        </Text>
+        <Text
           className={`${
             colorMap[kudo.style?.textColor || "WHITE"]
           } whitespace-pre-wrap break-all`}
         >
           {kudo.message}
-        </p>
+        </Text>
       </div>
       <div className="mt-1">
         <div className="bg-white rounded-full h-10 w-10 flex items-center justify-center text-2xl">

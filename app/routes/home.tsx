@@ -13,7 +13,7 @@ import { Kudo } from "~/components/kudo";
 import { Layout } from "~/components/layout";
 import { UserPanel } from "~/components/user-panel";
 import { SearchBar } from "~/components/search-bar";
-import { RecentBar } from "~/components/recent-bar";
+// import { RecentBar } from "~/components/recent-bar";
 
 interface KudoWithProfile extends IKudo {
   author: {
@@ -23,11 +23,12 @@ interface KudoWithProfile extends IKudo {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  const users = await getOtherUsers(userId);
+  const url = new URL(request.url);
+  const searchOtherUser = url.searchParams.get("otherUser");
+  const users = await getOtherUsers(userId, searchOtherUser);
   const user = await getUserById(userId);
   const recentKudos = await getRecentKudos();
 
-  const url = new URL(request.url);
   const sort = url.searchParams.get("sort");
   const filter = url.searchParams.get("filter");
 
@@ -83,16 +84,16 @@ export default function Home() {
     <Layout>
       <Outlet />
       <div className="h-full flex">
-        <UserPanel users={users} />
+        <UserPanel users={users} mainUser={user} />
         <div className="flex-1 flex flex-col">
-          <SearchBar profile={user.profile} />
+          <SearchBar />
           <div className="flex-1 flex">
             <div className="w-full p-10 flex flex-col gap-y-4">
               {kudos.map((kudo: KudoWithProfile) => (
                 <Kudo key={kudo.id} kudo={kudo} profile={kudo.author.profile} />
               ))}
             </div>
-            <RecentBar kudos={recentKudos} />
+            {/* <RecentBar kudos={recentKudos} /> */}
           </div>
         </div>
       </div>

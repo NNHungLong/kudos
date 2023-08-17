@@ -1,11 +1,11 @@
 import { Portal } from "./portal";
-import { useNavigate } from "@remix-run/react";
 
 interface props {
   children: React.ReactNode;
   isOpen: boolean;
   ariaLabel?: string;
   className?: string;
+  hideModal: () => void;
 }
 
 export const Modal: React.FC<props> = ({
@@ -13,8 +13,8 @@ export const Modal: React.FC<props> = ({
   isOpen,
   ariaLabel,
   className,
+  hideModal,
 }) => {
-  const navigate = useNavigate();
   if (!isOpen) return null;
   return (
     <Portal wrapperId="modal">
@@ -23,11 +23,11 @@ export const Modal: React.FC<props> = ({
         aria-labelledby={ariaLabel ?? "modal-title"}
         role="dialog"
         aria-modal="true"
-        onClick={() => navigate("/home")}
+        onClick={hideModal}
       ></div>
       <div className="fixed inset-0 pointer-events-none flex justify-center items-center max-h-screen overflow-scroll">
         <div
-          className={`${className} p-4 bg-gray-200 pointer-events-auto max-h-screen md:rounded-xl`}
+          className={`${className} py-4 px-6 bg-gray-200 pointer-events-auto max-h-screen md:rounded-xl`}
         >
           {children}
         </div>

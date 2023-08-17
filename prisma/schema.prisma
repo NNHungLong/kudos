@@ -14,7 +14,7 @@ type Profile {
   firstName      String
   lastName       String
   profilePicture String?
-  department     Department? @default(MARKETING)
+  department     Department?
 }
 
 model User {

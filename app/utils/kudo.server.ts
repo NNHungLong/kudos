@@ -50,7 +50,6 @@ export const getFilteredKudo = async (
       ...sortFilter,
     },
     where: {
-      recipientId: userId,
       ...whereFilter,
     },
   });

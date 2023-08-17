@@ -7,7 +7,7 @@ import {
 } from "@remix-run/node";
 import { useState } from "react";
 import { Color, Emoji, KudoStyle } from "@prisma/client";
-import { useLoaderData, useActionData } from "@remix-run/react";
+import { useLoaderData, useActionData, useNavigate } from "@remix-run/react";
 
 // utils
 import { getUserById } from "~/utils/user.server";
@@ -68,6 +68,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export default function KudoModal() {
   const { recipient, user } = useLoaderData();
+  const [showModal, setShowModal] = useState(true);
+  const navigate = useNavigate();
   const actionData = useActionData();
   const [formError] = useState<string | null>(actionData?.error || "");
   const [formData, setFormData] = useState({
@@ -110,8 +112,12 @@ export default function KudoModal() {
     }, []);
   const colors = getOptions(colorMap);
   const emojis = getOptions(emojiMap);
+  const hideModal = () => {
+    setShowModal(false);
+    navigate(`/home`);
+  };
   return (
-    <Modal isOpen={true} className="w-2/3 p-10">
+    <Modal isOpen={showModal} hideModal={hideModal} className="w-2/3 p-10">
       <div className="text-xs font-semibold text-center tracking-wide text-red-500 w-full mb-2">
         {formError}
       </div>

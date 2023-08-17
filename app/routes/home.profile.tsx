@@ -14,12 +14,20 @@ import { getUser, requireUserId } from "~/utils/auth.server";
 import { departments } from "~/utils/constants";
 import { validateName } from "~/utils/validators.server";
 import { updateUser } from "~/utils/user.server";
+import { useNavigate } from "@remix-run/react";
 
 // components
 import { Modal } from "~/components/modal";
-import { FormField } from "~/components/form-field";
-import { SelectBox } from "~/components/select-box";
 import { ImageUploader } from "~/components/image-uploader";
+import {
+  Button,
+  Flex,
+  TextField,
+  Box,
+  Text,
+  Heading,
+  Select,
+} from "@radix-ui/themes";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
@@ -28,22 +36,15 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function ProfileSettings() {
   const { user } = useLoaderData();
+  const [showModal, setShowModal] = useState(true);
 
   const [formData, setFormData] = useState({
     firstName: user?.profile?.firstName,
     lastName: user?.profile?.lastName,
-    departments: user?.profile?.departments || "MARKETING",
+    department: user?.profile?.department || "MARKETING",
     profilePicture: user?.profile?.profilePicture || "",
   });
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string,
-  ) => {
-    setFormData((form) => ({
-      ...form,
-      [field]: e.target.value,
-    }));
-  };
+  const navigate = useNavigate();
   const handleFileUpload = async (file: File) => {
     let inputFormData = new FormData();
     inputFormData.append("profile-pic", file);
@@ -63,51 +64,93 @@ export default function ProfileSettings() {
       }));
     }
   };
+  const navigateToHome = () => {
+    let currentPath = new URL(window.location.href).pathname;
+    if (currentPath === "/home") return;
+    if (currentPath.match(/^\/home/)) {
+      const queryString = new URLSearchParams(window.location.search);
+      navigate(`/home?${queryString.toString()}`);
+      return;
+    }
+    navigate("/home");
+  };
+  const hideModal = () => {
+    setShowModal(false);
+    navigateToHome();
+  };
   return (
-    <Modal isOpen={true} className="w-1/3">
-      <div className="p-3">
-        <h2 className="text-4xl font-semibold text-blue-600 text-center mb-4">
-          Your Profile
-        </h2>
-        <div className="flex">
-          <div className="w-1/3">
-            <ImageUploader
-              onChange={handleFileUpload}
-              imageUrl={formData.profilePicture || ""}
-            />
-          </div>
-          <div className="flex-1">
-            <form method="post">
-              <FormField
-                htmlFor="firstName"
-                label="First Name"
-                value={formData.firstName}
-                onChange={(e) => handleInputChange(e, "firstName")}
+    <Modal isOpen={showModal} className="w-1/3" hideModal={hideModal}>
+      <Box width="auto">
+        <Flex align="center" justify="between">
+          <Flex direction="column">
+            <Heading size="6" as="h4" weight="bold" align="left">
+              Edit Profile
+            </Heading>
+            <Text size="2" weight="medium">
+              Make changes to your profile
+            </Text>
+          </Flex>
+          <ImageUploader
+            onChange={handleFileUpload}
+            imageUrl={formData.profilePicture || ""}
+            fallback={
+              user?.profile?.firstName.charAt(0).toUpperCase() +
+              user?.profile?.lastName.charAt(0).toUpperCase()
+            }
+          />
+        </Flex>
+        <form method="post" className="mt-2">
+          <Flex direction="column" gap="3">
+            <label>
+              <Text as="div" size="2" mb="1" weight="bold">
+                First Name
+              </Text>
+              <TextField.Input
+                name="firstName"
+                defaultValue={user?.profile?.firstName}
+                placeholder="First Name"
               />
-              <FormField
-                htmlFor="lastName"
-                label="Last Name"
-                value={formData.lastName}
-                onChange={(e) => handleInputChange(e, "lastName")}
+            </label>
+            <label>
+              <Text as="div" size="2" mb="1" weight="bold">
+                Last Name
+              </Text>
+              <TextField.Input
+                name="lastName"
+                defaultValue={user?.profile?.lastName}
+                placeholder="Last Name"
               />
-              <SelectBox
-                className="w-full rounded-xl px-3 py-2"
-                id="departments"
-                label="Departments"
+            </label>
+            <label>
+              <Text as="div" size="2" mb="1" weight="bold">
+                Department
+              </Text>
+              <Select.Root
+                defaultValue={user?.profile?.department}
                 name="department"
-                options={departments}
-                value={formData.departments}
-                onChange={(e) => handleInputChange(e, "departments")}
-              />
-              <div className="w-full text-right mt-4">
-                <button className="rounded-xl bg-yellow-300 font-semibold text-blue-600 px-16 py-2 transition duration-300 ease-in-out hover:bg-yellow-400 hover:-translate-y-1">
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+              >
+                <Select.Trigger className="w-full" />
+                <Select.Content position="popper">
+                  {departments.map((department) => (
+                    <Select.Item
+                      key={department.value}
+                      value={department.value}
+                    >
+                      {department.name}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Root>
+            </label>
+          </Flex>
+          <Flex gap="3" mt="4" justify="end">
+            <Button variant="soft" color="gray" onClick={hideModal}>
+              Cancel
+            </Button>
+            <Button type="submit">Save</Button>
+          </Flex>
+        </form>
+      </Box>
     </Modal>
   );
 }
@@ -119,17 +162,12 @@ export const action: ActionFunction = async ({ request }) => {
   let lastName = form.get("lastName");
   let department = form.get("department");
 
-  if (
-    typeof firstName !== "string" ||
-    typeof lastName !== "string" ||
-    typeof department !== "string"
-  ) {
+  if (typeof firstName !== "string" || typeof lastName !== "string") {
     return json({ error: `Invalid form data` }, { status: 400 });
   }
   const errors = {
     firstName: validateName(firstName),
     lastName: validateName(lastName),
-    department: validateName(department),
   };
 
   if (Object.values(errors).some(Boolean)) {

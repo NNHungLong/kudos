@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import type { RegisterForm } from "./types.server";
 import { prisma } from "./prisma.server";
-import { Profile } from "@prisma/client";
+import { Profile, Prisma } from "@prisma/client";
 
 export const createUser = async (user: RegisterForm) => {
   const passwordHash = bcrypt.hashSync(user.password, 10);
@@ -18,21 +18,100 @@ export const createUser = async (user: RegisterForm) => {
   return { id: newUser.id, email: newUser.email };
 };
 
-export const getOtherUsers = async (userId: string) => {
+export const getOtherUsers = async (
+  userId: string,
+  searchOtherUser?: string | null,
+) => {
+  let whereUserInput: Prisma.UserWhereInput;
+  if (searchOtherUser) {
+    let searchOtherUserMultipleWords = searchOtherUser?.split(" ");
+    if (searchOtherUserMultipleWords.length > 1) {
+      whereUserInput = {
+        AND: [
+          {
+            OR: [
+              {
+                profile: {
+                  is: {
+                    firstName: {
+                      contains: searchOtherUserMultipleWords[0],
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+              {
+                profile: {
+                  is: {
+                    lastName: {
+                      startsWith: searchOtherUserMultipleWords[1],
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            ],
+          },
+          {
+            id: { not: userId },
+          },
+        ],
+      };
+    } else {
+      whereUserInput = {
+        AND: [
+          {
+            OR: [
+              {
+                profile: {
+                  is: {
+                    firstName: {
+                      startsWith: searchOtherUser,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+              {
+                profile: {
+                  is: {
+                    lastName: {
+                      startsWith: searchOtherUser,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+              {
+                email: { contains: searchOtherUser, mode: "insensitive" },
+              },
+            ],
+          },
+          {
+            id: { not: userId },
+          },
+        ],
+      };
+    }
+  } else {
+    whereUserInput = {
+      id: { not: userId },
+    };
+  }
   return await prisma.user.findMany({
     select: {
       id: true,
       email: true,
       profile: true,
     },
-    where: {
-      id: { not: userId },
-    },
+    where: whereUserInput,
     orderBy: {
       profile: {
         firstName: "asc",
       },
     },
+    skip: 0,
+    take: 100,
   });
 };
 

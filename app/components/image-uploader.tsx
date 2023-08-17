@@ -1,11 +1,13 @@
 import React, { useRef, useState } from "react";
 
+import { Avatar } from "@radix-ui/themes";
 interface props {
   onChange: (file: File) => any;
   imageUrl?: string;
+  fallback?: string;
 }
 
-export const ImageUploader = ({ onChange, imageUrl }: props) => {
+export const ImageUploader = ({ onChange, imageUrl, fallback }: props) => {
   const [draggingOver, setDraggingOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dropRef = useRef(null);
@@ -31,15 +33,9 @@ export const ImageUploader = ({ onChange, imageUrl }: props) => {
   return (
     <div
       ref={dropRef}
-      className={`${
-        draggingOver
-          ? "border-4 border-dashed border-yellow-300 border-rounded"
-          : ""
-      } group rounded-full relative w-24 h-24 flex justify-center items-center bg-gray-400 transition duration-300 ease-in-out hover:bg-gray-500 cursor-pointer`}
-      style={{
-        backgroundSize: "cover",
-        ...(imageUrl ? { backgroundImage: `url(${imageUrl})` } : {}),
-      }}
+      className={`cursor-pointer rounded-full border-4 border-dashed border-rounded transition duration-300 ease-in-out ${
+        draggingOver ? "border-gray-500" : "border-transparent"
+      }`}
       onDragEnter={() => setDraggingOver(true)}
       onDragLeave={() => setDraggingOver(false)}
       onDrag={preventDefaults}
@@ -49,19 +45,12 @@ export const ImageUploader = ({ onChange, imageUrl }: props) => {
       onDrop={handleDrop}
       onClick={() => fileInputRef.current?.click()}
     >
-      {imageUrl ? (
-        <div className="absolute w-full h-full bg-blue-400 opacity-0 rounded-full duration-300 ease-in-out group-hover:opacity-50 flex justify-center items-center">
-          <p className="font-extrabold text-4xl text-gray-200 cursor-pointer select-none pointer-events-none z-10">
-            +
-          </p>
-        </div>
-      ) : (
-        <div className="absolute w-full h-full bg-blue-400 opacity-100 rounded-full duration-300 ease-in-out group-hover:opacity-50 flex justify-center items-center">
-          <p className="font-extrabold text-4xl text-gray-200 cursor-pointer select-none pointer-events-none z-10">
-            +
-          </p>
-        </div>
-      )}
+      <Avatar
+        size="5"
+        src={imageUrl}
+        radius="full"
+        fallback={fallback || "+"}
+      />
       <input
         type="file"
         ref={fileInputRef}

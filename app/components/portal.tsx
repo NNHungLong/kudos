@@ -19,10 +19,11 @@ export const Portal: React.FC<props> = ({ children, wrapperId }) => {
   useEffect(() => {
     let element = document.getElementById(wrapperId);
     let created = false;
-    if (!created) {
+    if (!created && (element === undefined || element === null)) {
       element = createWrapper(wrapperId);
       created = true;
     }
+    element?.focus();
     setWrapper(element);
     return () => {
       if (created && element?.parentNode) {

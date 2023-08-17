@@ -1,10 +1,8 @@
 import {
-  unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
   unstable_createFileUploadHandler,
 } from "@remix-run/node";
 import { getGoogleDriveToken } from "./token.server";
-import { GoogleAPIsAccessToken } from "@prisma/client";
 const fs = require("fs");
 const { google } = require("googleapis");
 import { getUser } from "./auth.server";
@@ -19,8 +17,8 @@ export const uploadImageToGoogleDrive = async (request: Request) => {
     getWebCredentials(),
     getGoogleDriveToken(),
   ]);
-  const userId = user.id;
-  const oldProfilePicture = user.profile?.profilePicture;
+  const userId = user?.id;
+  const oldProfilePicture = user?.profile?.profilePicture;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -45,13 +43,13 @@ export const uploadImageToGoogleDrive = async (request: Request) => {
   const uploadHandlerOptions = {
     maxPartSize: 3000000,
     maxFiles: 1,
-    filter: ({ contentType }) => {
+    filter: ({ contentType }: { contentType: string }) => {
       fileFormat = contentType.replace("image/", ".");
       fileType = contentType;
       return validImageTypes.includes(contentType);
     },
     directory: "./tmp",
-    file: ({ contentType }) => {
+    file: () => {
       fileName = "avatar_" + userId + fileFormat;
       return fileName;
     },
@@ -107,7 +105,7 @@ export const uploadImageToGoogleDrive = async (request: Request) => {
     });
 
   function deleteOldPicture() {
-    const oldProfilePictureId = new URL(oldProfilePicture).searchParams.get(
+    const oldProfilePictureId = new URL(oldProfilePicture!).searchParams.get(
       "id",
     );
     const url = `https://www.googleapis.com/drive/v3/files/${oldProfilePictureId}`;
@@ -121,6 +119,6 @@ export const uploadImageToGoogleDrive = async (request: Request) => {
 };
 
 const getWebCredentials = async () => {
-  const webCredentials = JSON.parse(process.env.GOOGLE_API_WEB_CREDENTIAL);
+  const webCredentials = JSON.parse(process.env.GOOGLE_API_WEB_CREDENTIAL!);
   return webCredentials.web;
 };
