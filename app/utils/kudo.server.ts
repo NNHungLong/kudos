@@ -40,8 +40,16 @@ export const getFilteredKudo = async (
       id: true,
       style: true,
       message: true,
+      createdAt: true,
       author: {
         select: {
+          email: true,
+          profile: true,
+        },
+      },
+      recipient: {
+        select: {
+          email: true,
           profile: true,
         },
       },
@@ -52,6 +60,7 @@ export const getFilteredKudo = async (
     where: {
       ...whereFilter,
     },
+    take: 10,
   });
 };
 

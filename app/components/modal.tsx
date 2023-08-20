@@ -25,9 +25,9 @@ export const Modal: React.FC<props> = ({
         aria-modal="true"
         onClick={hideModal}
       ></div>
-      <div className="fixed inset-0 pointer-events-none flex justify-center items-center max-h-screen overflow-scroll">
+      <div className="fixed inset-0 pointer-events-none flex justify-center items-center max-h-screen">
         <div
-          className={`${className} py-4 px-6 bg-gray-200 pointer-events-auto max-h-screen md:rounded-xl`}
+          className={`py-6 px-5 pointer-events-auto max-h-screen md:rounded-xl ${className}`}
         >
           {children}
         </div>

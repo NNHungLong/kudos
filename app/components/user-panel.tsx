@@ -83,7 +83,7 @@ export function UserPanel({
           <Avatar
             size="3"
             src={user.profile.profilePicture!}
-            radius="full"
+            radius="medium"
             fallback={
               user.profile.firstName.charAt(0).toUpperCase() +
               user.profile.lastName.charAt(0).toUpperCase()
@@ -117,7 +117,7 @@ export function UserPanel({
               <Avatar
                 size="3"
                 src={mainUser.profile.profilePicture!}
-                radius="full"
+                radius="medium"
                 fallback={
                   mainUser.profile.firstName.charAt(0).toUpperCase() +
                   mainUser.profile.lastName.charAt(0).toUpperCase()

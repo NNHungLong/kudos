@@ -48,7 +48,7 @@ export const ImageUploader = ({ onChange, imageUrl, fallback }: props) => {
       <Avatar
         size="5"
         src={imageUrl}
-        radius="full"
+        radius="medium"
         fallback={fallback || "+"}
       />
       <input

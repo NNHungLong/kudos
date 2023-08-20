@@ -64,7 +64,7 @@ export function SearchBar() {
     return (
       <DropdownMenu.Root>
         <DropdownMenu.Trigger className="cursor-pointer">
-          <IconButton radius="full" variant="soft" color="gray">
+          <IconButton radius="medium" variant="soft" color="gray">
             <GearIcon width="18" height="18" />
           </IconButton>
         </DropdownMenu.Trigger>
@@ -89,7 +89,7 @@ export function SearchBar() {
 
   return (
     <Flex
-      className="h-20 gap-x-5 border-b-2 border-b-gray-300 px-2"
+      className="py-4 gap-x-5 border-b-2 border-b-gray-300 px-2"
       justify="between"
       align="center"
     >

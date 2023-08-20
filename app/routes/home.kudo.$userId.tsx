@@ -6,37 +6,40 @@ import {
   redirect,
 } from "@remix-run/node";
 import { useState } from "react";
-import { Color, Emoji, KudoStyle } from "@prisma/client";
+import { Emoji } from "@prisma/client";
 import { useLoaderData, useActionData, useNavigate } from "@remix-run/react";
 
 // utils
 import { getUserById } from "~/utils/user.server";
 import { getUser } from "~/utils/auth.server";
-import { colorMap, emojiMap } from "~/utils/constants";
+import { emojiMap } from "~/utils/constants";
 import { requireUserId } from "~/utils/auth.server";
 import { createKudo } from "~/utils/kudo.server";
 
 // components
+import {
+  Card,
+  Avatar,
+  Text,
+  Flex,
+  Heading,
+  TextArea,
+  Select,
+  Button,
+} from "@radix-ui/themes";
 import { Modal } from "~/components/modal";
-import { UserCircle } from "~/components/user-circle";
-import { Kudo } from "~/components/kudo";
-import { SelectBox } from "~/components/select-box";
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request);
 
   const form = await request.formData();
   const message = form.get("message");
-  const backgroundColor = form.get("backgroundColor");
-  const textColor = form.get("textColor");
   const emoji = form.get("emoji");
   const recipientId = form.get("recipientId");
 
   if (
     typeof message !== "string" ||
     typeof recipientId !== "string" ||
-    typeof backgroundColor !== "string" ||
-    typeof textColor !== "string" ||
     typeof emoji !== "string"
   ) {
     return json({ error: `Invalid Form Data` }, { status: 400 });
@@ -48,8 +51,6 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ error: `No recipient found...` }, { status: 400 });
   }
   await createKudo(message, userId, recipientId, {
-    backgroundColor: backgroundColor as Color,
-    textColor: textColor as Color,
     emoji: emoji as Emoji,
   });
   return redirect("/home");
@@ -60,7 +61,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (typeof userId !== "string") {
     redirect("/home");
   }
-
   const recipient = await getUserById(userId as string);
   const user = await getUser(request);
   return json({ recipient, user });
@@ -68,126 +68,133 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export default function KudoModal() {
   const { recipient, user } = useLoaderData();
-  const [showModal, setShowModal] = useState(true);
   const navigate = useNavigate();
-  const actionData = useActionData();
-  const [formError] = useState<string | null>(actionData?.error || "");
-  const [formData, setFormData] = useState({
-    message: "",
-    style: {
-      backgroundColor: "RED",
-      textColor: "WHITE",
-      emoji: "THUMBSUP",
-    } as KudoStyle,
-  });
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-    field: string,
-  ) => {
-    setFormData((data) => ({ ...data, [field]: e.target.value }));
-  };
-  const handleStyleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-    field: string,
-  ) => {
-    setFormData((data) => ({
-      ...data,
-      style: {
-        ...data.style,
-        [field]: e.target.value,
-      },
-    }));
-  };
-  const getOptions = (data: any) =>
-    Object.keys(data).reduce((acc: any[], curr) => {
-      acc.push({
-        name: curr.charAt(0).toUpperCase() + curr.slice(1).toLowerCase(),
-        value: curr,
-      });
-      return acc;
-    }, []);
-  const colors = getOptions(colorMap);
-  const emojis = getOptions(emojiMap);
+  const [showModal, setShowModal] = useState(true);
+  const [kudosEmoji, setKudosEmoji] = useState<Emoji>("THUMBSUP");
   const hideModal = () => {
     setShowModal(false);
     navigate(`/home`);
   };
+  const setEmojiInputValue = (emoji: Emoji) => {
+    document.getElementById("emojiInput")!.setAttribute("value", emoji);
+    document.getElementById("emojiText")!.innerHTML = emojiMap[emoji];
+  };
+  const updateMessageInputValue = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    document
+      .getElementById("kudos-message-input")!
+      .setAttribute("value", e.target.value);
+  };
   return (
-    <Modal isOpen={showModal} hideModal={hideModal} className="w-2/3 p-10">
-      <div className="text-xs font-semibold text-center tracking-wide text-red-500 w-full mb-2">
-        {formError}
-      </div>
-      <form method="post">
-        <input type="hidden" value={recipient.id} name="recipientId" />
-        <div className="flex flex-col md:flex-row gap-y-2 md:gap-y-0">
-          <div className="flex-center flex flex-col items-center gap-y-2 pr-8">
-            <UserCircle profile={recipient.profile} className="h-24 w-24" />
-            <p className="text-blue-300">
-              {recipient.profile.firstName} {recipient.profile.lastName}
-            </p>
-            {recipient.profile.department && (
-              <span className="px-2 py-1 bg-gray-300 rounded-xl text-blue-300 w-auto">
-                {recipient.profile.department[0].toUpperCase() +
-                  recipient.profile.department.toLowerCase().slice(1)}
-              </span>
-            )}
-          </div>
-          <div className="flex-1 flex flex-col gap-y-4">
-            <textarea
-              name="message"
-              className="w-full rounded-xl h-40 p-4"
-              value={formData.message}
-              onChange={(e) => handleChange(e, "message")}
-              placeholder={`Say something nice about ${recipient.profile.firstName}...`}
-            />
-            <div className="flex flex-col items-center md:flex-row md:justify-start gap-x-4">
-              <SelectBox
-                options={colors}
-                name="backgroundColor"
-                value={formData.style.backgroundColor}
-                onChange={(e) => handleStyleChange(e, "backgroundColor")}
-                label="Background Color"
-                containerClassName="w-36"
-                className="w-full rounded-xl px-3 py-2 text-gray-400"
+    <Modal isOpen={showModal} hideModal={hideModal} className="w-2/3">
+      <Card>
+        <Flex direction="column">
+          <Flex>
+            <Flex gap="2" className="flex-1">
+              <Avatar
+                radius="medium"
+                size="4"
+                alt="kudo-author-profile-picture"
+                src={user.profile.profilePicture!}
+                fallback={
+                  user.profile.firstName.charAt(0).toUpperCase() +
+                  user.profile.lastName.charAt(0).toUpperCase()
+                }
               />
-              <SelectBox
-                options={colors}
-                name="textColor"
-                value={formData.style.textColor}
-                onChange={(e) => handleStyleChange(e, "textColor")}
-                label="Text Color"
-                containerClassName="w-36"
-                className="w-full rounded-xl px-3 py-2 text-gray-400"
-              />
-              <SelectBox
-                options={emojis}
-                label="Emoji"
-                name="emoji"
-                value={formData.style.emoji}
-                onChange={(e) => handleStyleChange(e, "emoji")}
-                containerClassName="w-36"
-                className="w-full rounded-xl px-3 py-2 text-gray-400"
-              />
-            </div>
-          </div>
-        </div>
-        <br />
-        <p className="text-blue-600 font-semibold mb-2">Preview</p>
-        <div className="flex flex-col items-center md:flex-row gap-x-4 gap-y-2 md:gap-y-0">
-          <Kudo profile={user.profile} kudo={formData} />
-          <div className="flex-1" />
-          <button
-            type="submit"
-            className="rounded-xl bg-yellow-300 font-semibold text-blue-600 h-12 transition duration-300 ease-in-out hover:bg-yellow-400 hover:-translate-y-1 w-40"
+              <Flex direction="column" gap="1" className="flex-1">
+                <Flex gap="1" align="center">
+                  <Heading size="3" weight="bold">
+                    {user.profile.firstName + " " + user.profile.lastName}
+                  </Heading>
+                  <Text id="emojiText" size="3">
+                    {emojiMap[kudosEmoji]}
+                  </Text>
+                </Flex>
+                <Flex gap="2" justify="start" className="relative">
+                  <TextArea
+                    name="message"
+                    size="2"
+                    className="max-h-[150px]"
+                    placeholder="Say something nice…"
+                    onChange={updateMessageInputValue}
+                  />
+                </Flex>
+              </Flex>
+            </Flex>
+            <Flex className="w-60" direction="column-reverse">
+              <Flex align="center" direction="row-reverse" gap="2">
+                <Avatar
+                  radius="medium"
+                  size="4"
+                  alt="kudo-recipient-profile-picture"
+                  src={recipient.profile.profilePicture!}
+                  fallback={
+                    recipient.profile.firstName.charAt(0).toUpperCase() +
+                    recipient.profile.lastName.charAt(0).toUpperCase()
+                  }
+                />
+                <Flex direction="column">
+                  <Heading size="3" weight="bold" align="right">
+                    {recipient.profile.firstName +
+                      " " +
+                      recipient.profile.lastName}
+                  </Heading>
+                  <Text size="2" align="right">
+                    {recipient.email}
+                  </Text>
+                </Flex>
+              </Flex>
+            </Flex>
+          </Flex>
+          <Flex
+            gap="2"
+            direction="row"
+            justify="between"
+            className="mt-4 pt-2 border-t-2 border-t-gray-300"
           >
-            Send
-          </button>
-        </div>
-      </form>
+            <form method="post">
+              <Flex gap="2">
+                <input type="hidden" name="recipientId" value={recipient.id} />
+                <input
+                  id="kudos-message-input"
+                  type="hidden"
+                  name="message"
+                  value=""
+                />
+                <input type="hidden" name="userId" value={user.id} />
+                <input
+                  id="emojiInput"
+                  type="hidden"
+                  name="emoji"
+                  value="THUMBSUP"
+                />
+                <Select.Root name="emoji" onValueChange={setEmojiInputValue}>
+                  <Select.Trigger
+                    placeholder={`Select an emoji ${emojiMap["THUMBSUP"]}`}
+                  />
+                  <Select.Content>
+                    {Object.keys(emojiMap).map((emoji: Emoji) => (
+                      <Select.Item key={emoji} value={emoji}>
+                        {`${emojiMap[emoji]} ${
+                          emoji.charAt(0).toUpperCase() +
+                          emoji.slice(1).toLowerCase()
+                        }`}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+                <Button type="submit" color="blue">
+                  Send
+                </Button>
+              </Flex>
+            </form>
+            <Button onClick={hideModal} color="gray" className="self-end">
+              Cancel
+            </Button>
+          </Flex>
+        </Flex>
+      </Card>
     </Modal>
   );
 }

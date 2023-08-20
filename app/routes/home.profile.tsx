@@ -27,7 +27,10 @@ import {
   Text,
   Heading,
   Select,
+  Card,
+  Tooltip,
 } from "@radix-ui/themes";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
@@ -80,77 +83,87 @@ export default function ProfileSettings() {
   };
   return (
     <Modal isOpen={showModal} className="w-1/3" hideModal={hideModal}>
-      <Box width="auto">
-        <Flex align="center" justify="between">
-          <Flex direction="column">
-            <Heading size="6" as="h4" weight="bold" align="left">
-              Edit Profile
-            </Heading>
-            <Text size="2" weight="medium">
-              Make changes to your profile
-            </Text>
-          </Flex>
-          <ImageUploader
-            onChange={handleFileUpload}
-            imageUrl={formData.profilePicture || ""}
-            fallback={
-              user?.profile?.firstName.charAt(0).toUpperCase() +
-              user?.profile?.lastName.charAt(0).toUpperCase()
-            }
-          />
-        </Flex>
-        <form method="post" className="mt-2">
-          <Flex direction="column" gap="3">
-            <label>
-              <Text as="div" size="2" mb="1" weight="bold">
-                First Name
+      <Card>
+        <Box width="auto">
+          <Flex align="start" justify="between">
+            <Flex direction="column">
+              <Heading size="6" as="h4" weight="bold" align="left">
+                Edit Profile
+              </Heading>
+              <Text size="2" weight="medium">
+                Make changes to your profile
               </Text>
-              <TextField.Input
-                name="firstName"
-                defaultValue={user?.profile?.firstName}
-                placeholder="First Name"
+            </Flex>
+            <Flex direction="column" align="center">
+              <ImageUploader
+                onChange={handleFileUpload}
+                imageUrl={formData.profilePicture || ""}
+                fallback={
+                  user?.profile?.firstName.charAt(0).toUpperCase() +
+                  user?.profile?.lastName.charAt(0).toUpperCase()
+                }
               />
-            </label>
-            <label>
-              <Text as="div" size="2" mb="1" weight="bold">
-                Last Name
-              </Text>
-              <TextField.Input
-                name="lastName"
-                defaultValue={user?.profile?.lastName}
-                placeholder="Last Name"
-              />
-            </label>
-            <label>
-              <Text as="div" size="2" mb="1" weight="bold">
-                Department
-              </Text>
-              <Select.Root
-                defaultValue={user?.profile?.department}
-                name="department"
+              <Tooltip
+                multiline="true"
+                content="Click on the avatar or drag an image into the avatar section"
               >
-                <Select.Trigger className="w-full" />
-                <Select.Content position="popper">
-                  {departments.map((department) => (
-                    <Select.Item
-                      key={department.value}
-                      value={department.value}
-                    >
-                      {department.name}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Root>
-            </label>
+                <InfoCircledIcon radius="full" />
+              </Tooltip>
+            </Flex>
           </Flex>
-          <Flex gap="3" mt="4" justify="end">
-            <Button variant="soft" color="gray" onClick={hideModal}>
-              Cancel
-            </Button>
-            <Button type="submit">Save</Button>
-          </Flex>
-        </form>
-      </Box>
+          <form method="post" className="mt-2">
+            <Flex direction="column" gap="3">
+              <label>
+                <Text as="div" size="2" mb="1" weight="bold">
+                  First Name
+                </Text>
+                <TextField.Input
+                  name="firstName"
+                  defaultValue={user?.profile?.firstName}
+                  placeholder="First Name"
+                />
+              </label>
+              <label>
+                <Text as="div" size="2" mb="1" weight="bold">
+                  Last Name
+                </Text>
+                <TextField.Input
+                  name="lastName"
+                  defaultValue={user?.profile?.lastName}
+                  placeholder="Last Name"
+                />
+              </label>
+              <label>
+                <Text as="div" size="2" mb="1" weight="bold">
+                  Department
+                </Text>
+                <Select.Root
+                  defaultValue={user?.profile?.department}
+                  name="department"
+                >
+                  <Select.Trigger className="w-full" />
+                  <Select.Content position="popper">
+                    {departments.map((department) => (
+                      <Select.Item
+                        key={department.value}
+                        value={department.value}
+                      >
+                        {department.name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+              </label>
+            </Flex>
+            <Flex gap="3" mt="4" justify="end">
+              <Button variant="soft" color="gray" onClick={hideModal}>
+                Cancel
+              </Button>
+              <Button type="submit">Save</Button>
+            </Flex>
+          </form>
+        </Box>
+      </Card>
     </Modal>
   );
 }

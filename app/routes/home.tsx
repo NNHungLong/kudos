@@ -1,11 +1,11 @@
 // cores
 import { LoaderFunction, json } from "@remix-run/node";
-import { Kudo as IKudo, Profile, Prisma } from "@prisma/client";
+import { Kudo as IKudo, Prisma, User } from "@prisma/client";
 import { useLoaderData, Outlet } from "@remix-run/react";
 
 // utils
 import { requireUserId } from "~/utils/auth.server";
-import { getFilteredKudo, getRecentKudos } from "~/utils/kudo.server";
+import { getFilteredKudo } from "~/utils/kudo.server";
 import { getOtherUsers, getUserById } from "~/utils/user.server";
 
 // components
@@ -13,12 +13,10 @@ import { Kudo } from "~/components/kudo";
 import { Layout } from "~/components/layout";
 import { UserPanel } from "~/components/user-panel";
 import { SearchBar } from "~/components/search-bar";
-// import { RecentBar } from "~/components/recent-bar";
 
-interface KudoWithProfile extends IKudo {
-  author: {
-    profile: Profile;
-  };
+interface KudoWithRecipientAndAuthor extends IKudo {
+  recipient: User;
+  author: User;
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -27,7 +25,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   const searchOtherUser = url.searchParams.get("otherUser");
   const users = await getOtherUsers(userId, searchOtherUser);
   const user = await getUserById(userId);
-  const recentKudos = await getRecentKudos();
 
   const sort = url.searchParams.get("sort");
   const filter = url.searchParams.get("filter");
@@ -75,11 +72,11 @@ export const loader: LoaderFunction = async ({ request }) => {
     };
   }
   const kudos = await getFilteredKudo(userId, sortOptions, textFilter);
-  return json({ users, kudos, recentKudos, user });
+  return json({ users, kudos, user });
 };
 
 export default function Home() {
-  const { users, kudos, recentKudos, user } = useLoaderData();
+  const { users, kudos, user } = useLoaderData();
   return (
     <Layout>
       <Outlet />
@@ -87,13 +84,12 @@ export default function Home() {
         <UserPanel users={users} mainUser={user} />
         <div className="flex-1 flex flex-col">
           <SearchBar />
-          <div className="flex-1 flex">
+          <div className="flex-1 flex overflow-auto">
             <div className="w-full p-10 flex flex-col gap-y-4">
-              {kudos.map((kudo: KudoWithProfile) => (
-                <Kudo key={kudo.id} kudo={kudo} profile={kudo.author.profile} />
+              {kudos.map((kudo: KudoWithRecipientAndAuthor) => (
+                <Kudo key={kudo.id} kudo={kudo} />
               ))}
             </div>
-            {/* <RecentBar kudos={recentKudos} /> */}
           </div>
         </div>
       </div>

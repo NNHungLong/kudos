@@ -41,18 +41,8 @@ enum Department {
   HR
 }
 
-enum Color {
-  RED
-  GREEN
-  YELLOW
-  BLUE
-  WHITE
-}
-
 type KudoStyle {
-  backgroundColor Color @default(YELLOW)
-  textColor       Color @default(WHITE)
-  emoji           Emoji @default(THUMBSUP)
+  emoji Emoji @default(THUMBSUP)
 }
 
 model Kudo {
