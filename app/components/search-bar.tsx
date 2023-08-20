@@ -61,7 +61,7 @@ export function SearchBar({ mainUser }: props) {
   const logout = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     fetch("/logout", { method: "POST" }).then(() => {
-      navigate("/login");
+      navigate("/home");
     });
   };
 
