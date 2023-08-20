@@ -30,8 +30,7 @@ export const createKudo = async (
   }
 };
 
-export const getFilteredKudo = async (
-  userId: string,
+export const getFilteredKudos = async (
   sortFilter: Prisma.KudoOrderByWithRelationInput,
   whereFilter: Prisma.KudoWhereInput,
 ) => {

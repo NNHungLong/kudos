@@ -19,7 +19,7 @@ export const createUser = async (user: RegisterForm) => {
 };
 
 export const getOtherUsers = async (
-  userId: string,
+  userId: string | null,
   searchOtherUser?: string | null,
 ) => {
   let whereUserInput: Prisma.UserWhereInput;
@@ -52,9 +52,7 @@ export const getOtherUsers = async (
               },
             ],
           },
-          {
-            id: { not: userId },
-          },
+          userId ? { id: { not: userId } } : {},
         ],
       };
     } else {
@@ -87,16 +85,12 @@ export const getOtherUsers = async (
               },
             ],
           },
-          {
-            id: { not: userId },
-          },
+          userId ? { id: { not: userId } } : {},
         ],
       };
     }
   } else {
-    whereUserInput = {
-      id: { not: userId },
-    };
+    whereUserInput = userId ? { id: { not: userId } } : {};
   }
   return await prisma.user.findMany({
     select: {

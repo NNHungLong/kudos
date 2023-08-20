@@ -1,9 +1,10 @@
 // cores
 import { useCallback, useState, useEffect, useRef } from "react";
+import { useLoaderData } from "@remix-run/react";
 import { Response } from "@remix-run/node";
 import { useNavigation, useActionData } from "@remix-run/react";
 import { Form } from "@remix-run/react";
-import type { ActionArgs } from "@remix-run/node";
+import type { ActionArgs, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 
 // utils
@@ -26,7 +27,14 @@ const DEFAULT_FORM_DATA = {
   lastName: "",
 };
 
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
+  const action = url.searchParams.get("action");
+  return { initialAction: action || "login" };
+};
+
 export default function Login() {
+  const { initialAction } = useLoaderData();
   const navigation = useNavigation();
   let actionData = useActionData();
   // navigation.state: 'idle' -> 'submitting' -> 'loading' -> 'idle'
@@ -39,11 +47,8 @@ export default function Login() {
   const firstLoad = useRef(true);
   const [errors, setErrors] = useState(actionData?.errors || {});
   const [formError, setFormError] = useState(actionData?.error || "");
-  const [action, setAction] = useState<Action>("login");
+  const [action, setAction] = useState<Action>(initialAction);
   useEffect(() => {
-    // setErrors(DEFAULT_FORM_DATA);
-    // setFormError("");
-    // setFormData(DEFAULT_FORM_DATA)
     firstLoad.current = false;
   }, []);
   useEffect(() => {

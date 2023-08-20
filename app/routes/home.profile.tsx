@@ -104,8 +104,8 @@ export default function ProfileSettings() {
                 }
               />
               <Tooltip
-                multiline="true"
-                content="Click on the avatar or drag an image into the avatar section"
+                multiline={true}
+                content="Click on the avatar or drag an image into the avatar section to upload a new profile picture."
               >
                 <InfoCircledIcon radius="full" />
               </Tooltip>

@@ -1,5 +1,6 @@
 import { useNavigate, useSearchParams } from "@remix-run/react";
 import { Form } from "@remix-run/react";
+import { User } from "@prisma/client";
 
 // components
 import {
@@ -17,7 +18,11 @@ import {
   ExitIcon,
 } from "@radix-ui/react-icons";
 
-export function SearchBar() {
+type props = {
+  mainUser: User;
+};
+
+export function SearchBar({ mainUser }: props) {
   const navigate = useNavigate();
   let [searchParams] = useSearchParams();
   const filterKudos = (event: React.FormEvent<HTMLFormElement>) => {
@@ -58,6 +63,19 @@ export function SearchBar() {
     fetch("/logout", { method: "POST" }).then(() => {
       navigate("/login");
     });
+  };
+
+  const renderSignUpLoginButtons = () => {
+    return (
+      <Flex gap="2">
+        <Button color="green" onClick={() => navigate("/login")}>
+          Login
+        </Button>
+        <Button color="blue" onClick={() => navigate("/login?action=register")}>
+          Sign Up
+        </Button>
+      </Flex>
+    );
   };
 
   const renderSettingButton = () => {
@@ -109,7 +127,7 @@ export function SearchBar() {
           )}
         </Flex>
       </Form>
-      {renderSettingButton()}
+      {mainUser ? renderSettingButton() : renderSignUpLoginButtons()}
     </Flex>
   );
 }

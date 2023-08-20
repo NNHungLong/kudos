@@ -7,7 +7,7 @@ import {
 } from "@remix-run/node";
 import { useState } from "react";
 import { Emoji } from "@prisma/client";
-import { useLoaderData, useActionData, useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 
 // utils
 import { getUserById } from "~/utils/user.server";
@@ -15,6 +15,7 @@ import { getUser } from "~/utils/auth.server";
 import { emojiMap } from "~/utils/constants";
 import { requireUserId } from "~/utils/auth.server";
 import { createKudo } from "~/utils/kudo.server";
+import moment from "moment";
 
 // components
 import {
@@ -28,6 +29,13 @@ import {
   Button,
 } from "@radix-ui/themes";
 import { Modal } from "~/components/modal";
+
+const KudosTimeFormat = {
+  sameDay: "[Today], LT ",
+  lastDay: "[Yesterday], LT",
+  lastWeek: "[Last] dddd, LT",
+  sameElse: "DD/MM/YYYY, LT",
+};
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request);
@@ -70,7 +78,6 @@ export default function KudoModal() {
   const { recipient, user } = useLoaderData();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(true);
-  const [kudosEmoji, setKudosEmoji] = useState<Emoji>("THUMBSUP");
   const hideModal = () => {
     setShowModal(false);
     navigate(`/home`);
@@ -88,8 +95,8 @@ export default function KudoModal() {
   };
   return (
     <Modal isOpen={showModal} hideModal={hideModal} className="w-2/3">
-      <Card>
-        <Flex direction="column">
+      <Flex direction="column">
+        <Card>
           <Flex>
             <Flex gap="2" className="flex-1">
               <Avatar
@@ -108,9 +115,12 @@ export default function KudoModal() {
                     {user.profile.firstName + " " + user.profile.lastName}
                   </Heading>
                   <Text id="emojiText" size="3">
-                    {emojiMap[kudosEmoji]}
+                    {emojiMap["THUMBSUP"]}
                   </Text>
                 </Flex>
+                <Text size="1" weight="light">
+                  {moment().calendar(null, KudosTimeFormat)}
+                </Text>
                 <Flex gap="2" justify="start" className="relative">
                   <TextArea
                     name="message"
@@ -147,54 +157,54 @@ export default function KudoModal() {
               </Flex>
             </Flex>
           </Flex>
-          <Flex
-            gap="2"
-            direction="row"
-            justify="between"
-            className="mt-4 pt-2 border-t-2 border-t-gray-300"
-          >
-            <form method="post">
-              <Flex gap="2">
-                <input type="hidden" name="recipientId" value={recipient.id} />
-                <input
-                  id="kudos-message-input"
-                  type="hidden"
-                  name="message"
-                  value=""
+        </Card>
+        <Flex
+          gap="2"
+          direction="row"
+          justify="between"
+          className="mt-4 pt-2 border-t-2 border-t-gray-300"
+        >
+          <form method="post">
+            <Flex gap="2">
+              <input type="hidden" name="recipientId" value={recipient.id} />
+              <input
+                id="kudos-message-input"
+                type="hidden"
+                name="message"
+                value=""
+              />
+              <input type="hidden" name="userId" value={user.id} />
+              <input
+                id="emojiInput"
+                type="hidden"
+                name="emoji"
+                value="THUMBSUP"
+              />
+              <Select.Root name="emoji" onValueChange={setEmojiInputValue}>
+                <Select.Trigger
+                  placeholder={`Select an emoji ${emojiMap["THUMBSUP"]}`}
                 />
-                <input type="hidden" name="userId" value={user.id} />
-                <input
-                  id="emojiInput"
-                  type="hidden"
-                  name="emoji"
-                  value="THUMBSUP"
-                />
-                <Select.Root name="emoji" onValueChange={setEmojiInputValue}>
-                  <Select.Trigger
-                    placeholder={`Select an emoji ${emojiMap["THUMBSUP"]}`}
-                  />
-                  <Select.Content>
-                    {Object.keys(emojiMap).map((emoji: Emoji) => (
-                      <Select.Item key={emoji} value={emoji}>
-                        {`${emojiMap[emoji]} ${
-                          emoji.charAt(0).toUpperCase() +
-                          emoji.slice(1).toLowerCase()
-                        }`}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select.Root>
-                <Button type="submit" color="blue">
-                  Send
-                </Button>
-              </Flex>
-            </form>
-            <Button onClick={hideModal} color="gray" className="self-end">
-              Cancel
-            </Button>
-          </Flex>
+                <Select.Content>
+                  {Object.keys(emojiMap).map((emoji: Emoji) => (
+                    <Select.Item key={emoji} value={emoji}>
+                      {`${emojiMap[emoji]} ${
+                        emoji.charAt(0).toUpperCase() +
+                        emoji.slice(1).toLowerCase()
+                      }`}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Root>
+              <Button type="submit" color="blue">
+                Send
+              </Button>
+            </Flex>
+          </form>
+          <Button onClick={hideModal} color="gray" className="self-end">
+            Cancel
+          </Button>
         </Flex>
-      </Card>
+      </Flex>
     </Modal>
   );
 }

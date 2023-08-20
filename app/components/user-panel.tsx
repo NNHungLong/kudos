@@ -63,19 +63,27 @@ export function UserPanel({
       </Flex>
     );
   };
-  const navigateToKudo = (userId: string) => {
+  const clearUserSearchBar = () => {
     const userSearchBar = document.getElementById(
       "user-panel-search-bar",
     ) as HTMLInputElement;
     if (userSearchBar) {
       userSearchBar.value = "";
     }
-    navigate(`kudo/${userId}`);
+  };
+  const handleUserCardClick = (userId: string) => {
+    clearUserSearchBar();
+    console.log("mainUser", mainUser);
+    if (mainUser) {
+      navigate(`kudo/${userId}`);
+      return;
+    }
+    navigate("newUserModal");
   };
   const renderUserCard = (user: User) => {
     return (
       <Card
-        onClick={() => navigateToKudo(user.id)}
+        onClick={() => handleUserCardClick(user.id)}
         className="cursor-pointer"
         key={user.id}
       >
@@ -135,7 +143,7 @@ export function UserPanel({
             <DropdownMenu.Item onClick={navigateToProfile}>
               <Flex align="center" justify="start">
                 <PersonIcon className="mr-2" />
-                <Text as="span" size="2" weight="bold">
+                <Text as="span" size="2">
                   Profile
                 </Text>
               </Flex>

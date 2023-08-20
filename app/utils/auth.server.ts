@@ -80,7 +80,7 @@ export async function requireUserId(
   return userId;
 }
 
-async function getUserId(request: Request) {
+export async function getUserId(request: Request) {
   const session = await storage.getSession(request.headers.get("Cookie"));
   const userId = session.get("userId");
   if (!userId || typeof userId !== "string") return null;

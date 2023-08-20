@@ -13,7 +13,6 @@ export const meta: V2_MetaFunction = () => {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  await requireUserId(request);
   return redirect("/home");
 };
 
