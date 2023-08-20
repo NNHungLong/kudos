@@ -178,7 +178,9 @@ export function UserPanel({
       <Flex
         direction="column"
         gap="2"
-        className="h-[calc(100%-200px)] overflow-auto"
+        className={`overflow-auto ${
+          mainUser ? "h-[calc(100%-200px)]" : "h-[calc(100%-120px)]"
+        }`}
       >
         {users.map((user) => renderUserCard(user))}
       </Flex>
