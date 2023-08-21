@@ -73,7 +73,6 @@ export function UserPanel({
   };
   const handleUserCardClick = (userId: string) => {
     clearUserSearchBar();
-    console.log("mainUser", mainUser);
     if (mainUser) {
       navigate(`kudo/${userId}`);
       return;
@@ -97,13 +96,14 @@ export function UserPanel({
               user.profile.lastName.charAt(0).toUpperCase()
             }
           />
-          <Box>
+          <Box className="overflow-x-scroll max-w-[250px]">
             <Text
               as="div"
               size="2"
               weight="bold"
+              className="whitespace-nowrap"
             >{`${user.profile.firstName} ${user.profile.lastName}`}</Text>
-            <Text as="div" size="2" color="gray">
+            <Text as="div" size="2" color="gray" className="whitespace-nowrap">
               {user.email}
             </Text>
           </Box>
@@ -132,7 +132,12 @@ export function UserPanel({
                 }
               />
               <Flex align="center">
-                <Text as="div" size="2" weight="bold">
+                <Text
+                  as="div"
+                  size="2"
+                  weight="bold"
+                  className="whitespace-nowrap  overflow-x-scroll max-w-[230px]"
+                >
                   {`${mainUser.profile.firstName} ${mainUser.profile.lastName}`}{" "}
                 </Text>
                 <CaretDownIcon className="ml-2" />
@@ -179,7 +184,7 @@ export function UserPanel({
         direction="column"
         gap="2"
         className={`overflow-auto ${
-          mainUser ? "h-[calc(100%-200px)]" : "h-[calc(100%-120px)]"
+          mainUser ? "h-[calc(100%-12rem)]" : "h-[calc(100%-8rem)]"
         }`}
       >
         {users.map((user) => renderUserCard(user))}

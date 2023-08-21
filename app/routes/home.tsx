@@ -84,8 +84,8 @@ export default function Home() {
         <UserPanel users={users} mainUser={user} />
         <div className="flex-1 flex flex-col">
           <SearchBar mainUser={user} />
-          <div className="flex-1 flex overflow-auto">
-            <div className="w-full p-10 flex flex-col gap-y-4">
+          <div className="flex-1 flex overflow-y-scroll flex-col">
+            <div className="w-full px-10 py-5 flex flex-col gap-y-4">
               {kudos.map((kudo: KudoWithRecipientAndAuthor) => (
                 <Kudo key={kudo.id} kudo={kudo} />
               ))}

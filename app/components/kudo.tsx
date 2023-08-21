@@ -39,7 +39,11 @@ export function Kudo({ kudo }: props) {
             }
           />
           <Flex direction="column" gap="1">
-            <Heading size="3" weight="bold">
+            <Heading
+              size="3"
+              weight="bold"
+              className="text-ellipsis whitespace-nowrap overflow-hidden max-w-[15rem]"
+            >
               {kudo.author.profile.firstName +
                 " " +
                 kudo.author.profile.lastName}
@@ -47,7 +51,7 @@ export function Kudo({ kudo }: props) {
             <Text size="1" weight="light">
               {moment(kudo.createdAt).calendar(null, KudosTimeFormat)}
             </Text>
-            <Flex gap="2" justify="center">
+            <Flex gap="2">
               {kudo?.style?.emoji && (
                 <Text as="span">{emojiMap[kudo.style.emoji]}</Text>
               )}
@@ -70,12 +74,21 @@ export function Kudo({ kudo }: props) {
               }
             />
             <Flex direction="column">
-              <Heading size="3" weight="bold" align="right">
+              <Heading
+                size="3"
+                weight="bold"
+                align="right"
+                className="text-ellipsis whitespace-nowrap overflow-hidden max-w-[11rem]"
+              >
                 {kudo.recipient.profile.firstName +
                   " " +
                   kudo.recipient.profile.lastName}
               </Heading>
-              <Text size="2" align="right">
+              <Text
+                size="2"
+                align="right"
+                className="text-ellipsis whitespace-nowrap overflow-hidden max-w-[11rem]"
+              >
                 {kudo.recipient.email}
               </Text>
             </Flex>
