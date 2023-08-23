@@ -23,6 +23,7 @@ import {
   Tooltip,
   Heading,
   DropdownMenu,
+  ScrollArea,
 } from "@radix-ui/themes";
 
 export function UserPanel({
@@ -96,17 +97,24 @@ export function UserPanel({
               user.profile.lastName.charAt(0).toUpperCase()
             }
           />
-          <Box className="overflow-x-scroll max-w-[250px]">
-            <Text
-              as="div"
-              size="2"
-              weight="bold"
-              className="whitespace-nowrap"
-            >{`${user.profile.firstName} ${user.profile.lastName}`}</Text>
-            <Text as="div" size="2" color="gray" className="whitespace-nowrap">
-              {user.email}
-            </Text>
-          </Box>
+          <ScrollArea scrollbars="horizontal">
+            <Box className="max-w-[250px]">
+              <Text
+                as="div"
+                size="2"
+                weight="bold"
+                className="whitespace-nowrap"
+              >{`${user.profile.firstName} ${user.profile.lastName}`}</Text>
+              <Text
+                as="div"
+                size="2"
+                color="gray"
+                className="whitespace-nowrap"
+              >
+                {user.email}
+              </Text>
+            </Box>
+          </ScrollArea>
         </Flex>
       </Card>
     );
@@ -118,7 +126,7 @@ export function UserPanel({
   };
   const renderMainUserCard = () => {
     return (
-      <Flex className="h-14 flex align-center px-3 border-t-2 border-t-gray-300">
+      <Flex className="h-20 flex align-center px-3 border-t-2 border-t-gray-300">
         <DropdownMenu.Root>
           <DropdownMenu.Trigger className="cursor-pointer">
             <Flex gap="3" align="center">
@@ -132,14 +140,16 @@ export function UserPanel({
                 }
               />
               <Flex align="center">
-                <Text
-                  as="div"
-                  size="2"
-                  weight="bold"
-                  className="whitespace-nowrap  overflow-x-scroll max-w-[230px]"
-                >
-                  {`${mainUser.profile.firstName} ${mainUser.profile.lastName}`}{" "}
-                </Text>
+                <ScrollArea scrollbars="horizontal">
+                  <Text
+                    as="div"
+                    size="2"
+                    weight="bold"
+                    className="whitespace-nowrap  overflow-x-auto max-w-[230px]"
+                  >
+                    {`${mainUser.profile.firstName} ${mainUser.profile.lastName}`}{" "}
+                  </Text>
+                </ScrollArea>
                 <CaretDownIcon className="ml-2" />
               </Flex>
             </Flex>
@@ -180,15 +190,11 @@ export function UserPanel({
         </Text>
       </Flex>
       {renderSearchBar()}
-      <Flex
-        direction="column"
-        gap="2"
-        className={`overflow-auto ${
-          mainUser ? "h-[calc(100%-12rem)]" : "h-[calc(100%-8rem)]"
-        }`}
-      >
-        {users.map((user) => renderUserCard(user))}
-      </Flex>
+      <ScrollArea>
+        <Flex direction="column" gap="2">
+          {users.map((user) => renderUserCard(user))}
+        </Flex>
+      </ScrollArea>
       {mainUser && renderMainUserCard()}
     </Flex>
   );

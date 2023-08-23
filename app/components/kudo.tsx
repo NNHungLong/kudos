@@ -5,7 +5,14 @@ import { emojiMap } from "~/utils/constants";
 import moment from "moment";
 
 // components
-import { Card, Avatar, Text, Flex, Heading } from "@radix-ui/themes";
+import {
+  Card,
+  Avatar,
+  Text,
+  Flex,
+  Heading,
+  ScrollArea,
+} from "@radix-ui/themes";
 
 interface KudoWithRecipientAndAuthor extends IKudo {
   recipient: User;
@@ -55,9 +62,9 @@ export function Kudo({ kudo }: props) {
               {kudo?.style?.emoji && (
                 <Text as="span">{emojiMap[kudo.style.emoji]}</Text>
               )}
-              <Text size="2" className="max-h-[150px] overflow-auto">
-                {kudo.message}
-              </Text>
+              <ScrollArea scrollbars="vertical" className="max-h-[150px]">
+                <Text size="2">{kudo.message}</Text>
+              </ScrollArea>
             </Flex>
           </Flex>
         </Flex>

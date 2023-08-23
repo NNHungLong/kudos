@@ -13,6 +13,7 @@ import { Kudo } from "~/components/kudo";
 import { Layout } from "~/components/layout";
 import { UserPanel } from "~/components/user-panel";
 import { SearchBar } from "~/components/search-bar";
+import { ScrollArea } from "@radix-ui/themes";
 
 interface KudoWithRecipientAndAuthor extends IKudo {
   recipient: User;
@@ -84,13 +85,13 @@ export default function Home() {
         <UserPanel users={users} mainUser={user} />
         <div className="flex-1 flex flex-col">
           <SearchBar mainUser={user} />
-          <div className="flex-1 flex overflow-y-scroll flex-col">
+          <ScrollArea>
             <div className="w-full px-10 py-5 flex flex-col gap-y-4">
               {kudos.map((kudo: KudoWithRecipientAndAuthor) => (
                 <Kudo key={kudo.id} kudo={kudo} />
               ))}
             </div>
-          </div>
+          </ScrollArea>
         </div>
       </div>
     </Layout>
