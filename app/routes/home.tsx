@@ -29,7 +29,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const sort = url.searchParams.get("sort");
   const filter = url.searchParams.get("filter");
 
-  let sortOptions: Prisma.KudoOrderByWithRelationInput = {};
+  let sortOptions: Prisma.KudoOrderByWithRelationInput = { createdAt: "desc" };
   if (sort) {
     switch (sort) {
       case "date":
