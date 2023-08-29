@@ -121,7 +121,7 @@ export function UserPanel({
   };
   const logout = () => {
     fetch("/logout", { method: "POST" }).then(() => {
-      navigate("/login");
+      navigate("/home");
     });
   };
   const renderMainUserCard = () => {
