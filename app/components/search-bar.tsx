@@ -10,19 +10,22 @@ import {
   Button,
   IconButton,
   DropdownMenu,
+  Heading,
 } from "@radix-ui/themes";
 import {
   MagnifyingGlassIcon,
   GearIcon,
   PersonIcon,
   ExitIcon,
+  DragHandleHorizontalIcon,
 } from "@radix-ui/react-icons";
 
 type props = {
   mainUser: User;
+  toggleSideBar: () => void;
 };
 
-export function SearchBar({ mainUser }: props) {
+export function SearchBar({ mainUser, toggleSideBar }: props) {
   const navigate = useNavigate();
   let [searchParams] = useSearchParams();
   const filterKudos = (event: React.FormEvent<HTMLFormElement>) => {
@@ -107,10 +110,24 @@ export function SearchBar({ mainUser }: props) {
 
   return (
     <Flex
-      className="py-4 gap-x-5 border-b-2 border-b-gray-300 px-2"
+      className="py-4 gap-x-4 border-b-2 border-b-gray-300 px-4 flex-shrink-0 flex-grow-0"
       justify="between"
       align="center"
     >
+      <Flex className="w-64" align="center" gap="2">
+        <div className="inline-block md:hidden">
+          <Button variant="ghost" color="gray" onClick={toggleSideBar}>
+            <DragHandleHorizontalIcon
+              width="30"
+              height="30"
+              className="cursor-pointer"
+            />
+          </Button>
+        </div>
+        <Heading weight="bold" as="h2">
+          Kudos
+        </Heading>
+      </Flex>
       <Form onSubmit={filterKudos} id="search-bar-form">
         <Flex gap="2">
           <TextField.Root>

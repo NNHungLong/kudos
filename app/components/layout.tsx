@@ -1,3 +1,9 @@
-export function Layout({ children }: { children: React.ReactNode }) {
-  return <div className="h-screen w-full">{children}</div>;
+export function Layout({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <div className={`h-screen w-full ${className}`}>{children}</div>;
 }

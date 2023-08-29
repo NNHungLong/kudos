@@ -21,7 +21,6 @@ import {
   Avatar,
   TextField,
   Tooltip,
-  Heading,
   DropdownMenu,
   ScrollArea,
 } from "@radix-ui/themes";
@@ -29,9 +28,11 @@ import {
 export function UserPanel({
   users,
   mainUser,
+  className = "",
 }: {
   users: User[];
   mainUser: User;
+  className?: string;
 }) {
   const navigate = useNavigate();
   const filterUsers = debounce((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +46,7 @@ export function UserPanel({
   };
   const renderSearchBar = () => {
     return (
-      <Flex>
+      <Flex className="h-[32px] shrink-0 grow-0">
         <TextField.Root className="w-full">
           <TextField.Slot>
             <MagnifyingGlassIcon height="16" width="16" />
@@ -98,7 +99,7 @@ export function UserPanel({
             }
           />
           <ScrollArea scrollbars="horizontal">
-            <Box className="max-w-[250px]">
+            <Box className="lg:max-w-[230px] md:max-w-[180px]">
               <Text
                 as="div"
                 size="2"
@@ -126,7 +127,7 @@ export function UserPanel({
   };
   const renderMainUserCard = () => {
     return (
-      <Flex className="h-20 flex align-center px-3 border-t-2 border-t-gray-300">
+      <Flex className="h-[50px] shrink-0 grow-0 align-center px-3 border-t-2 border-t-gray-300">
         <DropdownMenu.Root>
           <DropdownMenu.Trigger className="cursor-pointer">
             <Flex gap="3" align="center">
@@ -140,12 +141,15 @@ export function UserPanel({
                 }
               />
               <Flex align="center">
-                <ScrollArea scrollbars="horizontal">
+                <ScrollArea
+                  scrollbars="horizontal"
+                  className="lg:max-w-[200px] md:max-w-[150px] sm:max-w-[100px]"
+                >
                   <Text
                     as="div"
                     size="2"
                     weight="bold"
-                    className="whitespace-nowrap  overflow-x-auto max-w-[230px]"
+                    className="whitespace-nowrap  overflow-x-auto "
                   >
                     {`${mainUser.profile.firstName} ${mainUser.profile.lastName}`}{" "}
                   </Text>
@@ -176,26 +180,24 @@ export function UserPanel({
     );
   };
   return (
-    <Flex
-      direction="column"
-      gap="2"
-      className="border-r-2 border-r-gray-300 px-2"
-    >
-      <Flex direction="column" justify="center" align="center" className="h-20">
-        <Heading weight="bold" as="h2">
-          Kudos
-        </Heading>
-        <Text as="span" size="2" align="center" color="gray">
-          Praise given for achievements
-        </Text>
+    <div className={className ? `${className}` : "hidden md:inline-block"}>
+      <Flex
+        direction="column"
+        gap="2"
+        className="border-r-2 border-r-gray-300 px-4 py-4 h-full max-h-full"
+      >
+        {renderSearchBar()}
+        <ScrollArea
+          style={{
+            height: "calc(100vh - 195px)",
+          }}
+        >
+          <Flex direction="column" gap="2">
+            {users.map((user) => renderUserCard(user))}
+          </Flex>
+        </ScrollArea>
+        {mainUser && renderMainUserCard()}
       </Flex>
-      {renderSearchBar()}
-      <ScrollArea>
-        <Flex direction="column" gap="2">
-          {users.map((user) => renderUserCard(user))}
-        </Flex>
-      </ScrollArea>
-      {mainUser && renderMainUserCard()}
-    </Flex>
+    </div>
   );
 }

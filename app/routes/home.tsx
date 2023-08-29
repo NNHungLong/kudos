@@ -2,6 +2,7 @@
 import { LoaderFunction, json } from "@remix-run/node";
 import { Kudo as IKudo, Prisma, User } from "@prisma/client";
 import { useLoaderData, Outlet } from "@remix-run/react";
+import { useState } from "react";
 
 // utils
 import { getUserId } from "~/utils/auth.server";
@@ -13,7 +14,7 @@ import { Kudo } from "~/components/kudo";
 import { Layout } from "~/components/layout";
 import { UserPanel } from "~/components/user-panel";
 import { SearchBar } from "~/components/search-bar";
-import { ScrollArea } from "@radix-ui/themes";
+import { Flex, ScrollArea } from "@radix-ui/themes";
 
 interface KudoWithRecipientAndAuthor extends IKudo {
   recipient: User;
@@ -78,22 +79,29 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Home() {
   const { users, kudos, user } = useLoaderData();
+  const [showSideBar, setShowSideBar] = useState(false);
+  const sideBarClassName =
+    "bg-white absolute z-10 top-[66px] left-0 right:0 h-screen min-w-full" +
+    (showSideBar ? "" : " hidden");
+  const toggleSideBar = () => {
+    setShowSideBar((prevShowSideBar) => !prevShowSideBar);
+  };
+
   return (
-    <Layout>
+    <Layout className="overflow-hidden relative">
       <Outlet />
-      <div className="h-full flex">
+      <SearchBar mainUser={user} toggleSideBar={toggleSideBar} />
+      <Flex className="flex-grow-1 flex-shrink-1">
         <UserPanel users={users} mainUser={user} />
-        <div className="flex-1 flex flex-col">
-          <SearchBar mainUser={user} />
-          <ScrollArea>
-            <div className="w-full px-10 py-5 flex flex-col gap-y-4">
-              {kudos.map((kudo: KudoWithRecipientAndAuthor) => (
-                <Kudo key={kudo.id} kudo={kudo} />
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      </div>
+        <ScrollArea style={{ height: "calc(100vh - 66px)" }}>
+          <Flex direction="column" className="px-4 py-4 gap-y-4">
+            {kudos.map((kudo: KudoWithRecipientAndAuthor) => (
+              <Kudo key={kudo.id} kudo={kudo} />
+            ))}
+          </Flex>
+        </ScrollArea>
+      </Flex>
+      <UserPanel className={sideBarClassName} users={users} mainUser={user} />
     </Layout>
   );
 }
