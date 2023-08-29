@@ -27,7 +27,7 @@ export const Modal: React.FC<props> = ({
       ></div>
       <div className="fixed inset-0 pointer-events-none flex justify-center items-center">
         <div
-          className={`pointer-events-auto md:rounded-xl bg-white p-6 ${className}`}
+          className={`pointer-events-auto md:rounded-xl bg-white p-6 ${className} rounded-md`}
         >
           {children}
         </div>

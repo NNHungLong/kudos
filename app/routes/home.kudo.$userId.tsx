@@ -97,7 +97,7 @@ export default function KudoModal() {
     <Modal isOpen={showModal} hideModal={hideModal} className="w-2/3">
       <Flex direction="column">
         <Card>
-          <Flex>
+          <div className="flex md:flex-row flex-col">
             <Flex gap="2" className="flex-1">
               <Avatar
                 radius="medium"
@@ -124,15 +124,15 @@ export default function KudoModal() {
                 <Flex gap="2" justify="start" className="relative">
                   <TextArea
                     name="message"
-                    size="2"
+                    size="3"
                     className="max-h-[150px]"
-                    placeholder="Say something nice…"
+                    placeholder="Kudos message..."
                     onChange={updateMessageInputValue}
                   />
                 </Flex>
               </Flex>
             </Flex>
-            <Flex className="w-60" direction="column-reverse">
+            <Flex className="md:w-60" direction="column-reverse">
               <Flex align="center" direction="row-reverse" gap="2">
                 <Avatar
                   radius="medium"
@@ -156,7 +156,7 @@ export default function KudoModal() {
                 </Flex>
               </Flex>
             </Flex>
-          </Flex>
+          </div>
         </Card>
         <Flex
           gap="2"
@@ -164,6 +164,9 @@ export default function KudoModal() {
           justify="between"
           className="mt-4 pt-2 border-t-2 border-t-gray-300"
         >
+          <Button onClick={hideModal} color="gray" className="self-end">
+            Cancel
+          </Button>
           <form method="post">
             <Flex gap="2">
               <input type="hidden" name="recipientId" value={recipient.id} />
@@ -185,9 +188,9 @@ export default function KudoModal() {
                   placeholder={`Select an emoji ${emojiMap["THUMBSUP"]}`}
                 />
                 <Select.Content>
-                  {Object.keys(emojiMap).map((emoji: Emoji) => (
+                  {Object.keys(emojiMap).map((emoji: string) => (
                     <Select.Item key={emoji} value={emoji}>
-                      {`${emojiMap[emoji]} ${
+                      {`${emojiMap[emoji as keyof typeof emojiMap]} ${
                         emoji.charAt(0).toUpperCase() +
                         emoji.slice(1).toLowerCase()
                       }`}
@@ -200,9 +203,6 @@ export default function KudoModal() {
               </Button>
             </Flex>
           </form>
-          <Button onClick={hideModal} color="gray" className="self-end">
-            Cancel
-          </Button>
         </Flex>
       </Flex>
     </Modal>
